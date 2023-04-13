@@ -9,10 +9,9 @@ def load_data():
 
 
 def remove_incorrect_values(data):
-    return data
     # remove rows where appCat.builtin and appCat.entertainment	are negative
-    return data[(data['appCat.builtin'] >= 0) & (data['appCat.entertainment'] >= 0)]
-    # DOES NOT WORK YET FOR SOME REASON!!!!!!!!!
+    return data[~(((data['variable'] == 'appCat.builtin') | (data['variable'] == 'appCat.entertainment')) & (data['value'] < 0))] 
+    
 
 
 def replace_missing_long(data, id_only=False):
@@ -22,6 +21,7 @@ def replace_missing_long(data, id_only=False):
             'value'].transform(lambda x: x.fillna(x.mean()))
     else:
         # replace missing values with the mean of the variable for that id and day
+        # NOTE there are days with NaN values only; mean cannot be calculated for that specific day
         data['value'] = data.groupby(['id', 'variable', data['time'].dt.date])[
             'value'].transform(lambda x: x.fillna(x.mean()))
     return data
@@ -63,16 +63,17 @@ def clean_data(data=load_data()):
 
 
 def iqr(data):
-    if pd.api.types.is_numeric_dtype(data):
-        Q1 = data.quantile(0.25)
-        Q3 = data.quantile(0.75)
-        IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        return data[(data > lower_bound) & (data < upper_bound)]
-    else:
-        return data
-
+    for var in data['variable'].unique():
+        partial = data.loc[data['variable'] == var]['value']
+        if pd.api.types.is_numeric_dtype(partial):
+            Q1 = partial.quantile(0.25) 
+            Q3 = partial.quantile(0.75)
+            IQR = Q3 - Q1
+            # use 3 for extreme outliers
+            lower_bound = Q1 - 3 * IQR
+            upper_bound = Q3 + 3 * IQR
+            data = data[~((data['variable']==var) & ((data['value'] < lower_bound) | (data['value'] > upper_bound)))]
+    return data
 
 def remove_outliers(data_wide):
     return data_wide.apply(iqr)
