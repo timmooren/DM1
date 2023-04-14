@@ -48,8 +48,11 @@ def group_data(data_wide):
     data_wide[sum_vars] = data_wide[sum_vars].fillna(0)
 
     # group the wide data by day and id and aggregate the mean of the variables
-    data_wide = data_wide.groupby(
-        [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
+    # data_wide = data_wide.groupby(
+    #     [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
+    
+    # new 
+    data_wide = data_wide.groupby([pd.Grouper(key='time', freq='D'), 'id']).agg({**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}).reset_index()
 
     # group the wide data by day and mean
     data_wide = data_wide.groupby(
@@ -57,7 +60,7 @@ def group_data(data_wide):
     return data_wide
 
 
-def replace_missing_wide(data):
+def impute_missing_wide(data):
     # TODO
     return data
 
@@ -68,7 +71,8 @@ def clean_data(data=load_data()):
     data = replace_missing_long(data)
     data = widen_data(data)
     data = group_data(data)
-    data = replace_missing_wide(data)
+    data = impute_missing_wide(data)
+    
     return data
 
 
@@ -101,6 +105,6 @@ def normalize_data(data):
 # 1C FEATURE ENGINEERING
 def feature_engineering(data_wide):
     # Extract hour and day information from the 'time' column
-    data_wide['hour'] = data_wide['time'].dt.hour
+    # data_wide['hour'] = data_wide['time'].dt.hour
     data_wide['day'] = data_wide['time'].dt.dayofweek
     return data_wide
