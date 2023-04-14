@@ -10,11 +10,10 @@ def load_data():
 
 def remove_incorrect_values(data):
     # remove rows where appCat.builtin and appCat.entertainment	are negative
-    return data[~(((data['variable'] == 'appCat.builtin') | (data['variable'] == 'appCat.entertainment')) & (data['value'] < 0))] 
-    
+    return data[~(((data['variable'] == 'appCat.builtin') | (data['variable'] == 'appCat.entertainment')) & (data['value'] < 0))]
 
 
-def replace_missing_long(data, id_only=False):
+def replace_missing_long(data, id_only=True):
     if id_only:
         # replace missing values with the mean of the variable for that id
         data['value'] = data.groupby(['id', 'variable'])[
@@ -39,13 +38,23 @@ def group_data(data_wide):
     sum_vars = ['appCat.builtin', 'appCat.communication', 'appCat.entertainment',
                 'appCat.finance', 'appCat.game', 'appCat.office', 'appCat.other',
                 'appCat.social', 'appCat.travel', 'appCat.unknown', 'appCat.utilities',
-                'appCat.weather', 'screen']
+                'appCat.weather', 'screen', 'call', 'sms']
     # mean variables
     mean_vars = ['circumplex.arousal',
                  'circumplex.valence', 'activity', 'mood']
+    mean_vars = sum_vars + mean_vars
 
-    # group the wide data by day and id and aggregate the sum and mean of the variables
-    return data_wide.groupby(pd.Grouper(key='time', freq='D')).agg({**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}})
+    # for the sum variables, replace nan values with 0
+    data_wide[sum_vars] = data_wide[sum_vars].fillna(0)
+
+    # group the wide data by day and id and aggregate the mean of the variables
+    data_wide = data_wide.groupby(
+        [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
+
+    # group the wide data by day and mean
+    data_wide = data_wide.groupby(
+        [pd.Grouper(key='time', freq='D')]).mean().reset_index()
+    return data_wide
 
 
 def replace_missing_wide(data):
@@ -55,7 +64,7 @@ def replace_missing_wide(data):
 
 def clean_data(data=load_data()):
     data = remove_incorrect_values(data)
-    #HERE remove outliers
+    # HERE remove outliers
     data = replace_missing_long(data)
     data = widen_data(data)
     data = group_data(data)
@@ -67,14 +76,16 @@ def iqr(data):
     for var in data['variable'].unique():
         partial = data.loc[data['variable'] == var]['value']
         if pd.api.types.is_numeric_dtype(partial):
-            Q1 = partial.quantile(0.25) 
+            Q1 = partial.quantile(0.25)
             Q3 = partial.quantile(0.75)
             IQR = Q3 - Q1
             # use 3 for extreme outliers
             lower_bound = Q1 - 3 * IQR
             upper_bound = Q3 + 3 * IQR
-            data = data[~((data['variable']==var) & ((data['value'] < lower_bound) | (data['value'] > upper_bound)))]
+            data = data[~((data['variable'] == var) & (
+                (data['value'] < lower_bound) | (data['value'] > upper_bound)))]
     return data
+
 
 def remove_outliers(data_wide):
     return data_wide.apply(iqr)
