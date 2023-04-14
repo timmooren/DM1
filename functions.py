@@ -14,7 +14,7 @@ def remove_incorrect_values(data):
     
 
 
-def replace_missing_long(data, id_only=False):
+def replace_missing_long(data, id_only=True):
     if id_only:
         # replace missing values with the mean of the variable for that id
         data['value'] = data.groupby(['id', 'variable'])[
