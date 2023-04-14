@@ -55,6 +55,7 @@ def replace_missing_wide(data):
 
 def clean_data(data=load_data()):
     data = remove_incorrect_values(data)
+    #HERE remove outliers
     data = replace_missing_long(data)
     data = widen_data(data)
     data = group_data(data)
