@@ -59,7 +59,12 @@ def group_data(data_wide):
     # group the wide data by day and mean
     data_wide_copy = data_wide_copy.groupby(
         [pd.Grouper(key='time', freq='D')]).mean().reset_index()
-    return data_wide_copy
+    
+    count_df = data_wide.groupby([pd.Grouper(key='time', freq='D'), 'id']).count().reset_index() # {**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}
+    count_df = count_df.groupby(pd.Grouper(key='time', freq='D')).mean()
+
+    result = pd.merge(data_wide_copy, count_df, on='time', suffixes=[None,'_count'])
+    return result
 
 
 def impute_missing_wide(data):
