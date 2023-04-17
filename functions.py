@@ -9,28 +9,34 @@ def load_data():
 
 
 def remove_incorrect_values(data):
+    # makes copy of df to not modify argument 
+    data_copy = data.copy()
     # remove rows where appCat.builtin and appCat.entertainment	are negative
-    return data[~(((data['variable'] == 'appCat.builtin') | (data['variable'] == 'appCat.entertainment')) & (data['value'] < 0))]
+    return data_copy[~(((data_copy['variable'] == 'appCat.builtin') | (data_copy['variable'] == 'appCat.entertainment')) & (data_copy['value'] < 0))]
 
 
 def replace_missing_long(data, id_only=True):
+    # makes copy of df to not modify argument 
+    data_copy = data.copy()
     if id_only:
         # replace missing values with the mean of the variable for that id
-        data['value'] = data.groupby(['id', 'variable'])[
+        data_copy['value'] = data_copy.groupby(['id', 'variable'])[
             'value'].transform(lambda x: x.fillna(x.mean()))
     else:
         # replace missing values with the mean of the variable for that id and day
         # NOTE there are days with NaN values only; mean cannot be calculated for that specific day
-        data['value'] = data.groupby(['id', 'variable', data['time'].dt.date])[
+        data_copy['value'] = data_copy.groupby(['id', 'variable', data_copy['time'].dt.date])[
             'value'].transform(lambda x: x.fillna(x.mean()))
-    return data
+    return data_copy
 
 
 def widen_data(data):
+    # makes copy of df to not modify argument 
+    data_copy = data.copy()
     # Widen data
-    data = data.pivot_table(
+    data_copy = data_copy.pivot_table(
         index=['id', 'time'], columns='variable', values='value').reset_index()
-    return data
+    return data_copy
 
 
 def group_data(data_wide):
@@ -49,25 +55,34 @@ def group_data(data_wide):
     # for the sum variables, replace nan values with 0
     data_wide_copy[sum_vars] = data_wide_copy[sum_vars].fillna(0)
 
-    # group the wide data by day and id and aggregate the mean of the variables
+    # old aggregation method 
     # data_wide_copy = data_wide_copy.groupby(
     #     [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
-    
-    # new 
+
+    # 1st aggregation - group by day while maintaining individuals (sum & mean)
     data_wide_copy = data_wide_copy.groupby([pd.Grouper(key='time', freq='D'), 'id']).agg({**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}).reset_index()
 
-    # group the wide data by day and mean
+    # 2nd aggregation - group individuals together (only mean)
     data_wide_copy = data_wide_copy.groupby(
         [pd.Grouper(key='time', freq='D')]).mean().reset_index()
-    return data_wide_copy
+    
+    count_df = data_wide.groupby([pd.Grouper(key='time', freq='D'), 'id']).count().reset_index() # {**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}
+    count_df = count_df.groupby(pd.Grouper(key='time', freq='D')).mean()
+
+    result = pd.merge(data_wide_copy, count_df, on='time', suffixes=[None,'_count'])
+    return result
 
 
 def impute_missing_wide(data):
-    data = data[15:-1]
-    data['activity'] = data['activity'].bfill()
-    data[['circumplex.arousal','circumplex.valence', 'mood']] = data[['circumplex.arousal','circumplex.valence', 'mood']].interpolate(method='linear')
+    # makes copy of df to not modify argument 
+    data_copy = data.copy()
+    # removes first 14 days and last day (too much missing data)
+    data_copy = data_copy[15:-1]
+    # imputation methods 
+    data_copy['activity'] = data_copy['activity'].bfill()
+    data_copy[['circumplex.arousal','circumplex.valence', 'mood']] = data_copy[['circumplex.arousal','circumplex.valence', 'mood']].interpolate(method='linear')
 
-    return data
+    return data_copy
 
 
 def clean_data(data=load_data()):
