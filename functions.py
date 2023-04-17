@@ -34,6 +34,8 @@ def widen_data(data):
 
 
 def group_data(data_wide):
+    # makes copy of df to not modify argument 
+    data_wide_copy = data_wide.copy()
     # sum variables
     sum_vars = ['appCat.builtin', 'appCat.communication', 'appCat.entertainment',
                 'appCat.finance', 'appCat.game', 'appCat.office', 'appCat.other',
@@ -45,19 +47,22 @@ def group_data(data_wide):
     mean_vars = sum_vars + mean_vars
 
     # for the sum variables, replace nan values with 0
-    data_wide[sum_vars] = data_wide[sum_vars].fillna(0)
+    data_wide_copy[sum_vars] = data_wide_copy[sum_vars].fillna(0)
 
     # group the wide data by day and id and aggregate the mean of the variables
-    data_wide = data_wide.groupby(
-        [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
+    # data_wide_copy = data_wide_copy.groupby(
+    #     [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
+    
+    # new 
+    data_wide_copy = data_wide_copy.groupby([pd.Grouper(key='time', freq='D'), 'id']).agg({**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}).reset_index()
 
     # group the wide data by day and mean
-    data_wide = data_wide.groupby(
+    data_wide_copy = data_wide_copy.groupby(
         [pd.Grouper(key='time', freq='D')]).mean().reset_index()
-    return data_wide
+    return data_wide_copy
 
 
-def replace_missing_wide(data):
+def impute_missing_wide(data):
     # TODO
     return data
 
@@ -68,7 +73,8 @@ def clean_data(data=load_data()):
     data = replace_missing_long(data)
     data = widen_data(data)
     data = group_data(data)
-    data = replace_missing_wide(data)
+    data = impute_missing_wide(data)
+    
     return data
 
 
@@ -101,6 +107,6 @@ def normalize_data(data):
 # 1C FEATURE ENGINEERING
 def feature_engineering(data_wide):
     # Extract hour and day information from the 'time' column
-    data_wide['hour'] = data_wide['time'].dt.hour
+    # data_wide['hour'] = data_wide['time'].dt.hour
     data_wide['day'] = data_wide['time'].dt.dayofweek
     return data_wide
