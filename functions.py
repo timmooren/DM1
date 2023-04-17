@@ -9,28 +9,34 @@ def load_data():
 
 
 def remove_incorrect_values(data):
+    # makes copy of df to not modify argument 
+    data_copy = data.copy()
     # remove rows where appCat.builtin and appCat.entertainment	are negative
-    return data[~(((data['variable'] == 'appCat.builtin') | (data['variable'] == 'appCat.entertainment')) & (data['value'] < 0))]
+    return data_copy[~(((data_copy['variable'] == 'appCat.builtin') | (data_copy['variable'] == 'appCat.entertainment')) & (data_copy['value'] < 0))]
 
 
 def replace_missing_long(data, id_only=True):
+    # makes copy of df to not modify argument 
+    data_copy = data.copy()
     if id_only:
         # replace missing values with the mean of the variable for that id
-        data['value'] = data.groupby(['id', 'variable'])[
+        data_copy['value'] = data_copy.groupby(['id', 'variable'])[
             'value'].transform(lambda x: x.fillna(x.mean()))
     else:
         # replace missing values with the mean of the variable for that id and day
         # NOTE there are days with NaN values only; mean cannot be calculated for that specific day
-        data['value'] = data.groupby(['id', 'variable', data['time'].dt.date])[
+        data_copy['value'] = data_copy.groupby(['id', 'variable', data_copy['time'].dt.date])[
             'value'].transform(lambda x: x.fillna(x.mean()))
-    return data
+    return data_copy
 
 
 def widen_data(data):
+    # makes copy of df to not modify argument 
+    data_copy = data.copy()
     # Widen data
-    data = data.pivot_table(
+    data_copy = data_copy.pivot_table(
         index=['id', 'time'], columns='variable', values='value').reset_index()
-    return data
+    return data_copy
 
 
 def group_data(data_wide):
