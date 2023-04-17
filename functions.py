@@ -1,5 +1,5 @@
 import pandas as pd
-
+from scipy.stats import boxcox
 
 def load_data():
     # Load data
@@ -63,7 +63,10 @@ def group_data(data_wide):
 
 
 def impute_missing_wide(data):
-    # TODO
+    data = data[15:-1]
+    data['activity'] = data['activity'].bfill()
+    data[['circumplex.arousal','circumplex.valence', 'mood']] = data[['circumplex.arousal','circumplex.valence', 'mood']].interpolate(method='linear')
+
     return data
 
 
@@ -79,18 +82,37 @@ def clean_data(data=load_data()):
 
 
 def iqr(data):
+    outliers = []
     for var in data['variable'].unique():
-        partial = data.loc[data['variable'] == var]['value']
-        if pd.api.types.is_numeric_dtype(partial):
-            Q1 = partial.quantile(0.25)
-            Q3 = partial.quantile(0.75)
+        
+        partial = data.loc[data['variable'] == var]
+        values = data.loc[data['variable'] == var]['value']
+        min = values.min()
+        if min < 0:
+            add = -min + 0.001
+            values += add
+        if min == 0:
+            add = 0.001
+            values += add
+        
+        if var != 'sms' and var != 'call':
+            partial['transformed'] = boxcox(values)[0]
+            Q1 = partial['transformed'].quantile(0.25)
+            Q3 = partial['transformed'].quantile(0.75)
             IQR = Q3 - Q1
             # use 3 for extreme outliers
             lower_bound = Q1 - 3 * IQR
             upper_bound = Q3 + 3 * IQR
-            data = data[~((data['variable'] == var) & (
-                (data['value'] < lower_bound) | (data['value'] > upper_bound)))]
-    return data
+
+            upper = partial[(partial['transformed'] > upper_bound)]
+            lower = partial[(partial['transformed'] < lower_bound)] # 
+            
+            if len(upper) != 0:
+                outliers.append(upper)
+            if len(lower != 0):
+                outliers.append(lower)
+            
+    return outliers
 
 
 def remove_outliers(data_wide):
