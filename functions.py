@@ -1,5 +1,5 @@
 import pandas as pd
-
+from scipy.stats import boxcox
 
 def load_data():
     # Load data
@@ -34,6 +34,8 @@ def widen_data(data):
 
 
 def group_data(data_wide):
+    # makes copy of df to not modify argument 
+    data_wide_copy = data_wide.copy()
     # sum variables
     sum_vars = ['appCat.builtin', 'appCat.communication', 'appCat.entertainment',
                 'appCat.finance', 'appCat.game', 'appCat.office', 'appCat.other',
@@ -45,20 +47,26 @@ def group_data(data_wide):
     mean_vars = sum_vars + mean_vars
 
     # for the sum variables, replace nan values with 0
-    data_wide[sum_vars] = data_wide[sum_vars].fillna(0)
+    data_wide_copy[sum_vars] = data_wide_copy[sum_vars].fillna(0)
 
     # group the wide data by day and id and aggregate the mean of the variables
-    data_wide = data_wide.groupby(
-        [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
+    # data_wide_copy = data_wide_copy.groupby(
+    #     [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
+    
+    # new 
+    data_wide_copy = data_wide_copy.groupby([pd.Grouper(key='time', freq='D'), 'id']).agg({**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}).reset_index()
 
     # group the wide data by day and mean
-    data_wide = data_wide.groupby(
+    data_wide_copy = data_wide_copy.groupby(
         [pd.Grouper(key='time', freq='D')]).mean().reset_index()
-    return data_wide
+    return data_wide_copy
 
 
-def replace_missing_wide(data):
-    # TODO
+def impute_missing_wide(data):
+    data = data[15:-1]
+    data['activity'] = data['activity'].bfill()
+    data[['circumplex.arousal','circumplex.valence', 'mood']] = data[['circumplex.arousal','circumplex.valence', 'mood']].interpolate(method='linear')
+
     return data
 
 
@@ -68,23 +76,43 @@ def clean_data(data=load_data()):
     data = replace_missing_long(data)
     data = widen_data(data)
     data = group_data(data)
-    data = replace_missing_wide(data)
+    data = impute_missing_wide(data)
+    
     return data
 
 
 def iqr(data):
+    outliers = []
     for var in data['variable'].unique():
-        partial = data.loc[data['variable'] == var]['value']
-        if pd.api.types.is_numeric_dtype(partial):
-            Q1 = partial.quantile(0.25)
-            Q3 = partial.quantile(0.75)
+        
+        partial = data.loc[data['variable'] == var]
+        values = data.loc[data['variable'] == var]['value']
+        min = values.min()
+        if min < 0:
+            add = -min + 0.001
+            values += add
+        if min == 0:
+            add = 0.001
+            values += add
+        
+        if var != 'sms' and var != 'call':
+            partial['transformed'] = boxcox(values)[0]
+            Q1 = partial['transformed'].quantile(0.25)
+            Q3 = partial['transformed'].quantile(0.75)
             IQR = Q3 - Q1
             # use 3 for extreme outliers
             lower_bound = Q1 - 3 * IQR
             upper_bound = Q3 + 3 * IQR
-            data = data[~((data['variable'] == var) & (
-                (data['value'] < lower_bound) | (data['value'] > upper_bound)))]
-    return data
+
+            upper = partial[(partial['transformed'] > upper_bound)]
+            lower = partial[(partial['transformed'] < lower_bound)] # 
+            
+            if len(upper) != 0:
+                outliers.append(upper)
+            if len(lower != 0):
+                outliers.append(lower)
+            
+    return outliers
 
 
 def remove_outliers(data_wide):
@@ -101,6 +129,6 @@ def normalize_data(data):
 # 1C FEATURE ENGINEERING
 def feature_engineering(data_wide):
     # Extract hour and day information from the 'time' column
-    data_wide['hour'] = data_wide['time'].dt.hour
+    # data_wide['hour'] = data_wide['time'].dt.hour
     data_wide['day'] = data_wide['time'].dt.dayofweek
     return data_wide
