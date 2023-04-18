@@ -64,12 +64,12 @@ def group_data(data_wide, count=True):
 
     # 2nd aggregation - group individuals together (only mean)
     data_wide_copy = data_wide_copy.groupby(
-        [pd.Grouper(key='time', freq='D')]).mean().reset_index()
+        pd.Grouper(key='time', freq='D')).mean(numeric_only=True).reset_index()
 
     count_df = data_wide.groupby([pd.Grouper(key='time', freq='D'), 'id']).count().reset_index() # {**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}
-    count_df = count_df.groupby(pd.Grouper(key='time', freq='D')).mean()
+    count_df = count_df.groupby(pd.Grouper(key='time', freq='D')).mean(numeric_only=True)
     result = pd.merge(data_wide_copy, count_df, on='time', suffixes=[None,'_count'])
-    
+
     if count:
         return result
     return data_wide_copy
@@ -87,15 +87,6 @@ def impute_missing_wide(data):
     return data_copy
 
 
-def clean_data(data=load_data()):
-    data = remove_incorrect_values(data)
-    # HERE remove outliers
-    data = replace_missing_long(data)
-    data = widen_data(data)
-    data = group_data(data)
-    data = impute_missing_wide(data)
-
-    return data
 
 
 def iqr(data):
@@ -140,16 +131,38 @@ def remove_outliers(data_wide):
 def normalize_data(data):
     # Normalize data
     data_scaled = data.copy()
-  
+
+    # divide mood column by 10
+    data_scaled['mood'] = data_scaled['mood'].astype(int) / 10
+
     # apply normalization techniques
-    for column in [col for col in data.columns if col != 'time']:
-        data_scaled[column] = (data_scaled[column] - data_scaled[column].min()) / (data_scaled[column].max() - data_scaled[column].min())    
+    for column in [col for col in data.columns if col not in ['time', 'mood']]:
+        data_scaled[column] = (data_scaled[column] - data_scaled[column].min()) / (data_scaled[column].max() - data_scaled[column].min())
     return data_scaled
 
 
 # 1C FEATURE ENGINEERING
 def feature_engineering(data_wide):
-    # Extract hour and day information from the 'time' column
-    # data_wide['hour'] = data_wide['time'].dt.hour
     data_wide['day'] = data_wide['time'].dt.dayofweek
     return data_wide
+
+
+def clean_data(data=load_data()):
+    data = remove_incorrect_values(data)
+    # HERE remove outliers
+    data = replace_missing_long(data)
+    data = widen_data(data)
+    data = group_data(data)
+    data = impute_missing_wide(data)
+    data = normalize_data(data)
+    data = feature_engineering(data)
+    # convert every value in mood column to int
+
+    return data
+
+
+def split_data(data=clean_data()):
+    # Split data into train and test
+    train = data[data['time'] < '2014-04-01']
+    test = data[data['time'] >= '2014-04-01']
+    return train, test

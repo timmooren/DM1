@@ -1,0 +1,50 @@
+wandb_version: 1
+
+batch_size:
+  desc: null
+  value: 64
+epochs:
+  desc: null
+  value: 100
+timesteps:
+  desc: null
+  value: 7
+hidden_units:
+  desc: null
+  value: 50
+dropout_rate:
+  desc: null
+  value: 0.2
+learning_rate:
+  desc: null
+  value: 0.001
+_wandb:
+  desc: null
+  value:
+    python_version: 3.8.16
+    cli_version: 0.14.2
+    framework: keras
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1681824414.710082
+    t:
+      1:
+      - 2
+      - 3
+      - 5
+      - 53
+      - 55
+      2:
+      - 2
+      - 3
+      - 5
+      - 53
+      - 55
+      3:
+      - 16
+      - 23
+      4: 3.8.16
+      5: 0.14.2
+      8:
+      - 4
+      - 5
