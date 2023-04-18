@@ -166,3 +166,24 @@ def split_data(data=clean_data()):
     train = data[data['time'] < '2014-04-01']
     test = data[data['time'] >= '2014-04-01']
     return train, test
+
+
+def data_prep_normal_model(clean_data, period_length=2):
+    # makes copy of df to not modify argument
+    clean_data_copy = clean_data.copy()
+    # aggregates data over period using mean) 
+    clean_data_copy.set_index('time', inplace=True)
+    aggregated_df = clean_data_copy.rolling(window=f'{period_length}D').mean()
+    aggregated_df = aggregated_df.reset_index()
+    # removes first n rows that were not aggregated over 
+    aggregated_df = aggregated_df.iloc[period_length:]
+    # column for start of period interval 
+    time_aggregate = aggregated_df['time'] - pd.DateOffset(period_length)
+    aggregated_df.insert(0, 'start time', time_aggregate)
+    # add mood next day 
+    aggregated_df['next day mood'] = clean_data_copy['mood'].iloc[period_length:].values
+    # removes day of week column 
+    aggregated_df = aggregated_df.drop('day', axis=1)
+
+    return aggregated_df
+    
