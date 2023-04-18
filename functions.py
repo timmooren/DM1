@@ -131,14 +131,18 @@ def iqr(data):
 
 
 def remove_outliers(data_wide):
-    return data_wide.apply(iqr)
+    #return data_wide.apply(iqr)
+    pass
 
 
 def normalize_data(data):
-    to_normalize = ['circumplex.arousal',
-                    'circumplex.valence', 'mood', 'activity', 'screen']
     # Normalize data
-    # TODO
+    data_scaled = data.copy()
+  
+    # apply normalization techniques
+    for column in [col for col in data.columns if col != 'time']:
+        data_scaled[column] = (data_scaled[column] - data_scaled[column].min()) / (data_scaled[column].max() - data_scaled[column].min())    
+    return data_scaled
 
 
 # 1C FEATURE ENGINEERING
