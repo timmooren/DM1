@@ -2,7 +2,6 @@ import pandas as pd
 from prophet import Prophet
 
 
-
 def temp(data):
     # Prepare the data
     data['time'] = pd.to_datetime(data['time'])
