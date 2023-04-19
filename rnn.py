@@ -9,7 +9,6 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import functions as fn
 
 
-
 config = {
     "batch_size": 64,
     "epochs": 50,
@@ -66,7 +65,6 @@ def main():
     n_target_columns = y_encoded.shape[1]
     X_sequences, y_sequences = create_sequences(
         data_concat, config["timesteps"], n_target_columns)
-
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(

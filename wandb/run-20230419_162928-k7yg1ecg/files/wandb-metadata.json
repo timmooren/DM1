@@ -1,0 +1,42 @@
+{
+    "os": "macOS-10.16-x86_64-i386-64bit",
+    "python": "3.11.2",
+    "heartbeatAt": "2023-04-19T14:29:29.010030",
+    "startedAt": "2023-04-19T14:29:28.441665",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/timmooren/Library/CloudStorage/GoogleDrive-timmooren9@gmail.com/My Drive/Master AI/DM/DM1/forest.py",
+    "codePath": "forest.py",
+    "git": {
+        "remote": "https://github.com/timmooren/DM1.git",
+        "commit": "fb03297cfb2619b78d81990b780b1a600b8fece8"
+    },
+    "email": "timmooren9@gmail.com",
+    "root": "/Users/timmooren/Library/CloudStorage/GoogleDrive-timmooren9@gmail.com/My Drive/Master AI/DM/DM1",
+    "host": "MacBook-Pro.local",
+    "username": "timmooren",
+    "executable": "/Users/timmooren/opt/anaconda3/envs/p11/bin/python",
+    "cpu_count": 12,
+    "cpu_count_logical": 12,
+    "cpu_freq": {
+        "current": 2400,
+        "min": 2400,
+        "max": 2400
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2400,
+            "min": 2400,
+            "max": 2400
+        }
+    ],
+    "disk": {
+        "total": 926.3517189025879,
+        "used": 684.141242980957
+    },
+    "memory": {
+        "total": 16.0
+    }
+}
