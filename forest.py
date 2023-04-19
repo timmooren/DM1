@@ -33,7 +33,7 @@ def main():
     cm = confusion_matrix(y_test, y_pred)
 
     ConfusionMatrixDisplay(confusion_matrix=cm).plot()
-    # save
+    # save with data and
     plt.savefig('plots/cm.png')
 
     first_tree = random_forest.estimators_[0]
