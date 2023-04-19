@@ -1,0 +1,34 @@
+{
+    "os": "macOS-13.3.1-arm64-arm-64bit",
+    "python": "3.8.16",
+    "heartbeatAt": "2023-04-18T14:39:20.135565",
+    "startedAt": "2023-04-18T14:39:07.538734",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "rnn.py",
+    "codePath": "rnn.py",
+    "git": {
+        "remote": "https://github.com/timmooren/DM1.git",
+        "commit": "22176b308b3be313f572982c9093f805e738cdcb"
+    },
+    "email": "timmooren9@gmail.com",
+    "root": "/Users/timmooren/Library/CloudStorage/GoogleDrive-timmooren9@gmail.com/My Drive/Master AI/DM/DM1",
+    "host": "MacBook-Pro.local",
+    "username": "timmooren",
+    "executable": "/Users/timmooren/miniconda/envs/tf/bin/python",
+    "cpu_count": 12,
+    "cpu_count_logical": 12,
+    "disk": {
+        "total": 926.3517189025879,
+        "used": 8.45672607421875
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 16.0
+    }
+}

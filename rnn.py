@@ -9,31 +9,32 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import functions as fn
 
 
-wandb.login()
 
 config = {
     "batch_size": 64,
-    "epochs": 100,
+    "epochs": 50,
     "timesteps": 7,
     "hidden_units": 50,
     "dropout_rate": 0.2,
-    "learning_rate": 0.001
+    "learning_rate": 0.001,
+    "recurrent_dropout": 0.2
 }
 
+wandb.login()
 wandb.init(project="DM1", config=config)
 
 
 def initialize_model(X_train, y_train):
     model = Sequential()
     model.add(LSTM(config["hidden_units"], input_shape=(
-        config["timesteps"], X_train.shape[2])))
+        config["timesteps"], X_train.shape[2])), recurrent_dropout=config["recurrent_dropout"])
     model.add(Dropout(config["dropout_rate"]))
     # output layer
     model.add(Dense(3, activation="softmax"))
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=config["learning_rate"])
     model.compile(loss="categorical_crossentropy",
-                  optimizer=optimizer, metrics=["accuracy"])
+                  optimizer=optimizer, metrics=["accuracy", tf.keras.metrics.AUC()])
 
     return model
 
