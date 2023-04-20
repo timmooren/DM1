@@ -1,6 +1,7 @@
 import pandas as pd
 from scipy.stats import boxcox
 
+
 def load_data():
     # Load data
     data = pd.read_csv('dataset_mood_smartphone.csv')
@@ -60,15 +61,20 @@ def group_data(data_wide, count=True):
     #     [pd.Grouper(key='time', freq='D'), 'id']).mean().reset_index()
 
     # 1st aggregation - group by day while maintaining individuals (sum & mean)
-    data_wide_copy = data_wide_copy.groupby([pd.Grouper(key='time', freq='D'), 'id']).agg({**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}).reset_index()
+    data_wide_copy = data_wide_copy.groupby([pd.Grouper(key='time', freq='D'), 'id']).agg(
+        {**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}).reset_index()
 
     # 2nd aggregation - group individuals together (only mean)
     data_wide_copy = data_wide_copy.groupby(
         pd.Grouper(key='time', freq='D')).mean(numeric_only=True).reset_index()
 
-    count_df = data_wide.groupby([pd.Grouper(key='time', freq='D'), 'id']).count().reset_index() # {**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}
-    count_df = count_df.groupby(pd.Grouper(key='time', freq='D')).mean(numeric_only=True)
-    result = pd.merge(data_wide_copy, count_df, on='time', suffixes=[None,'_count'])
+    # {**{var: 'sum' for var in sum_vars}, **{var: 'mean' for var in mean_vars}}
+    count_df = data_wide.groupby(
+        [pd.Grouper(key='time', freq='D'), 'id']).count().reset_index()
+    count_df = count_df.groupby(pd.Grouper(
+        key='time', freq='D')).mean(numeric_only=True)
+    result = pd.merge(data_wide_copy, count_df, on='time',
+                      suffixes=[None, '_count'])
 
     if count:
         return result
@@ -82,11 +88,10 @@ def impute_missing_wide(data):
     data_copy = data_copy[15:-1]
     # imputation methods
     data_copy['activity'] = data_copy['activity'].bfill()
-    data_copy[['circumplex.arousal','circumplex.valence', 'mood']] = data_copy[['circumplex.arousal','circumplex.valence', 'mood']].interpolate(method='linear')
+    data_copy[['circumplex.arousal', 'circumplex.valence', 'mood']] = data_copy[[
+        'circumplex.arousal', 'circumplex.valence', 'mood']].interpolate(method='linear')
 
     return data_copy
-
-
 
 
 def iqr(data):
@@ -113,7 +118,7 @@ def iqr(data):
             upper_bound = Q3 + 3 * IQR
 
             upper = partial[(partial['transformed'] > upper_bound)]
-            lower = partial[(partial['transformed'] < lower_bound)] #
+            lower = partial[(partial['transformed'] < lower_bound)]
 
             if len(upper) != 0:
                 outliers.append(upper)
@@ -124,7 +129,7 @@ def iqr(data):
 
 
 def remove_outliers(data_wide):
-    #return data_wide.apply(iqr)
+    # return data_wide.apply(iqr)
     pass
 
 
@@ -137,7 +142,8 @@ def normalize_data(data):
 
     # apply normalization techniques
     for column in [col for col in data.columns if col not in ['time', 'mood']]:
-        data_scaled[column] = (data_scaled[column] - data_scaled[column].min()) / (data_scaled[column].max() - data_scaled[column].min())
+        data_scaled[column] = (data_scaled[column] - data_scaled[column].min()) / \
+            (data_scaled[column].max() - data_scaled[column].min())
     return data_scaled
 
 
@@ -171,19 +177,18 @@ def split_data(data=clean_data()):
 def data_prep_normal_model(clean_data, period_length=2):
     # makes copy of df to not modify argument
     clean_data_copy = clean_data.copy()
-    # aggregates data over period using mean) 
+    # aggregates data over period using mean)
     clean_data_copy.set_index('time', inplace=True)
     aggregated_df = clean_data_copy.rolling(window=f'{period_length}D').mean()
     aggregated_df = aggregated_df.reset_index()
-    # removes first n rows that were not aggregated over 
+    # removes first n rows that were not aggregated over
     aggregated_df = aggregated_df.iloc[period_length:]
-    # column for start of period interval 
+    # column for start of period interval
     time_aggregate = aggregated_df['time'] - pd.DateOffset(period_length)
-    aggregated_df.insert(0, 'start time', time_aggregate)
-    # add mood next day 
-    aggregated_df['next day mood'] = clean_data_copy['mood'].iloc[period_length:].values
-    # removes day of week column 
+    aggregated_df.insert(0, 'start_time', time_aggregate)
+    # add mood next day
+    aggregated_df['mood_next'] = clean_data_copy['mood'].iloc[period_length:].values
+    # removes day of week column
     aggregated_df = aggregated_df.drop('day', axis=1)
 
     return aggregated_df
-    
