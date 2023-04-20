@@ -1,27 +1,69 @@
 import pandas as pd
 from prophet import Prophet
 from functions import clean_data
+from sklearn.model_selection import ParameterGrid
+from prophet.diagnostics import cross_validation, performance_metrics
 
 
 def main(data):
     # Prepare the data
-    df_prophet = data.rename(columns={'time': 'ds', 'mood': 'y'})
+    df_prophet = data.rename(columns={'time': 'ds', 'screen': 'y'})
 
-    # Initialize the model
-    model = Prophet()
+    # Define the hyperparameters to tune
+    param_grid = {
+        'seasonality_mode': ['additive', 'multiplicative'],
+        'changepoint_range': [0.8, 0.9, 1.0],
+        'seasonality_prior_scale': [0.01, 0.1, 1.0]
+    }
 
-    # Fit the model on the dataset
-    model.fit(df_prophet)
+    # Initialize the best model and its performance
+    best_model = None
+    best_performance = float('inf')
+    metric = 'mse'
+
+    # Iterate over all hyperparameter combinations
+    for params in ParameterGrid(param_grid):
+        # Initialize the model with the current hyperparameters
+        model = Prophet(
+            seasonality_mode=params['seasonality_mode'],
+            changepoint_range=params['changepoint_range']
+        )
+
+        # Add regularization parameters separately
+        model.add_seasonality(
+            name='daily',
+            period=1,
+            fourier_order=10,
+            prior_scale=params['seasonality_prior_scale']
+        )
+
+        # Fit the model on the dataset
+        model.fit(df_prophet)
+
+        # Cross-validate the model
+        cv_results = cross_validation(model, horizon='1 day')
+
+        # Compute the mean squared error (MSE) performance metric
+        performance_metric = performance_metrics(cv_results)[metric].mean()
+
+        # Check if this model is better than the previous best model
+        if performance_metric < best_performance:
+            best_model = model
+            best_performance = performance_metric
+
+    # Print the best hyperparameters and performance
+    print("Best hyperparameters:", best_model.params)
+    print("Best performance:", best_performance)
 
     # Make future predictions
-    future = model.make_future_dataframe(
+    future = best_model.make_future_dataframe(
         periods=1)  # predict the next 'periods' days
-    forecast = model.predict(future)
+    forecast = best_model.predict(future)
 
     # Plot the forecast
-    fig = model.plot(forecast)
+    fig = best_model.plot(forecast)
     # save the plot
-    fig.savefig('forecast.png')
+    fig.savefig(f'plots/forecast_{metric}.png')
 
     print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail())
 
