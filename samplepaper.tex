@@ -5,6 +5,14 @@
 \documentclass[runningheads]{llncs}
 %
 \usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{adjustbox}
+\usepackage{tabularx}
+\usepackage{titlesec}
+\usepackage{float}
+% to get newline after subsubsection 
+\titleformat{\subsubsection}[runin]{\normalfont\bfseries}{\thesubsubsection}{2em}{}[\\]
+\usepackage[margin=1.3in]{geometry}
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
 %
@@ -42,33 +50,120 @@ The abstract should briefly summarize the contents of the paper in
 %
 %
 \section{Task 1: DATA PREPARATION}
-\subsection{TASK 1A: EXPLORATORY DATA ANALYSIS}
-\subsubsection{Data Properties}
-% Notice all sorts of properties of the dataset: how many records are there, how many attributes, what kinds of attributes are there, ranges of values, distribution of values, relationships between attributes, missing values, and so on. A table is often a suitable way of showing such properties of a dataset. Notice if something is interesting (to you, or in general), make sure you write it down if you find something worth mentioning.
-There are 376912 entries in the dataset, of which 202 have missing values. All the missing values belong to the variables 'circumplex.arousal' and 'circumplex.valence'. 
 
-Regarding the ranges of the values in the data, it was discovered that the variables 'appCat.builtin' and 'appCat.entertainment' had negative values, which is problematic because they represent a duration and should therefore always be positive. This was solved at the data cleaning stage.
+\subsection{TASK 1A: EXPLORATORY DATA ANALYSIS}
+
+\subsubsection{Data properties \& variables} 
+\phantom
+\smallskip
+
+% Notice all sorts of properties of the dataset: how many records are there, how many attributes, what kinds of attributes are there, ranges of values, distribution of values, relationships between attributes, missing values, and so on. A table is often a suitable way of showing such properties of a dataset. Notice if something is interesting (to you, or in general), make sure you write it down if you find something worth mentioning.
+
+
+Data was acquired in 'long form', where each row consisted of the following: a \textit{time entry}, an \textit{id}, a \textit{variable} and a \textit{value}. In total, there were 376912 entries in the dataset amassed by 27 users, of which 202 had explicitly indicated missing values (denoted 'NA'), belonging to the variables \textit{circumplex.arousal} and \textit{circumplex.valence}. \\
+
+% many time entries 
+Time entries were not consistent across variables, since the variables had a different collection methods (eg. manual input, automatic collection), meaning that certain variables were collected much more frequently and with shorter time intervals between each entry. For example, a variable such as 'screen' received many entries since an entry was created every time a user was on his phone, whereas the 'mood' variable was manually collected around 4 times a day. This discrepancy in collection methods created a dataset with very inconsistent timestamps. Indeed, of the 376913 total rows, 336907 of them were unique time entries. \\
+
+% different variables
+We can call 'time based' variables the ones that were automatically collected by user phone usage (ie. all \textit{appCat} variables), 'score based' variables the ones in which the user inputs a score (eg. \textit{mood}), and 'incidence based' variables the ones where a boolean value was automatically collected (\textit{call} \& \textit{SMS}).  \\
+
+More details on each variable and their properties can be found in \textit{Table...} \\
+
+
++ table, when I manage to format it right... fucking latex always being super cringe
+% \include{tables/describe.tex}
+
+\subsubsection{Frequency distributions}
+\phantom
+\smallskip
+
+To get an idea of the distribution of the data, each variable was plotted as a frequency distribution histogram. We can see that most of the time based variables follow roughly a power-law distribution, where the majority of the time entries are short lived, but there are a few very long ones. On the other hand, score based variables seem to be normally distributed, which makes sense for this kind of data.  It might be important to note that a normally distributed target variable (\textit{mood}) may lead to class imbalance in later models, where low and high mood score are not as well represented. We can also get a sense of the outliers depending on how high the plot values go. 
+
+% incidence based variables only contained entries when the 1 present, blabla...
+
+
+
+% histogram plots - TODO
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=18cm, height=18cm, trim={10cm 5cm 0 5cm}]{plots/plots_1a/distribution_plot.png}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
+
+
+\subsubsection{Data trends over time}
+\phantom
+\smallskip
+
+In order to get a better idea of the general time-series data trends, each variable was plotted over the (roughly) 4 month data collection period. For better visualization, the data was aggregated into days by taking the mean of all values in that day for each variable. \\
+
+Overall, there seem to be no long term changes in \textit{mood} or any of the other predictor variables. We also see that there seem to be no clear linear or seasonal trends, but some somewhat cyclical behavior for certain variables and mostly irregular behavior for others. \\
+
+For a lot of the time based variables (\textit{appCat} variables), the data seems to have sudden spikes in usage, with a quick return to baseline. Score variables such as \textit{mood} or \textit{circumplex} are more-so characterized by cyclical peaks and valleys. Incidence variables (\textit{Call} and \textit{SMS}) seem to drop off over time, but this could either be due to these events not occurring or these events not being recorded. \\
+
+Additionally, we noticed that there was around a 14 day period at the start of the graphs where a large majority of variables values were missing, except for in \textit{call} and \textit{SMS}.
+
+% time plots
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=18cm, height=18cm, trim={10cm 5cm 0 5cm}]{plots/plots_1a/time_plot.png}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
+
+
+
+% Regarding the ranges of the values in the data, it was discovered that the variables 'appCat.builtin' and 'appCat.entertainment' had negative values, which is problematic because they represent a duration and should therefore always be positive. This was solved at the data cleaning stage.
 
 % FALSE:? Moreover, it was discovered that the values for the variables 'sms' and 'call' are always 1 (symbolizing 'yes'). Because the values are always the same, these variables do not provide any information for our model. Thus, it was decided to omit these variables to improve efficiency of the algorithm.
 
-\subsubsection{Plots}
 % Make various plots of the data. Is there something interesting worth reporting? Report the figures, discuss what is in them. What meaning do those bars, lines, dots, etc. convey? Please select essential and interesting plots for discussion, as you have limitedspace for reporting your findings.
 
-\includegraphics{plots/variable_count.png}
+% \includegraphics{plots/variable_count.png}
 
 
 \subsection{TASK 1B: DATA CLEANING}
 
-\subsubsection{Extreme and Incorrect Values}
-Through the exploratory data analysis it was discovered that XXXMANY entries contained incorrect values. Entries where variables had negative values for duration were removed.
+\subsubsection{Extreme and Incorrect Values} % TODO 
+\phantom
+\smallskip
+
+Through the exploratory data analysis we discovered that 4 entries contained incorrect values in \textit{appCat.builtin} \& \textit{appCat.entertainment}, ie. they were negative when expected to be positive. Entries containing these values were removed from the dataset. 
+
+\subsubsection{Data aggregation}
+\phantom
+\smallskip
+
+In order for the data to be in suitable form for the later steps, the data was first put in 'wide form', where each column contained the variables and each row contained the values. Since there were so many unique time entries, this created a lot of sparsity in the dataset, where a unique timestamp for one variable meant that each of the other variables would now have empty values. \\
 
 
-\subsubsection{Imputation}
+Because of this, all data was aggregated per day. The data was first aggregated by day and by individual ('id'), where all time based variables were aggregated with the sum, as a cumulation of the daily time allocated to that variable, and where all score based variables were aggregated with the mean, since the score isn't supposed to cumulate. \\
+
+After this first aggregation, we noticed that there were still a lot of empty values in the dataset and decided to aggregated a second time by merging the individuals together. Since the time based variables had already been cumulated by day, we could aggregate using the mean for all variables. \\
+
+The remaining dataset was a table containing 113 rows, where each row corresponds to a date instance with all the values for all variables after both aggregations. \\
+
+It could have been possible not to do a second aggregation round in order to have more instances but we deemed that this would still leave too many missing values to impute, so we decided to make the trade-off in favor of having less empty values. It may also be important to note that each day is not necessarily represented equally after the aggregation, meaning that some days had a lot more values to aggregate over because of the date and method inconsistencies in the way the data was collected. \\
+
+
+
+\subsubsection{Imputation \& removal} % TODO 
+\phantom
+\smallskip
+
 The missing values from variables 'circumplex.arousal' and 'circumplex.valence' were imputed using two methods. The first method involved replacing the missing values with the mean of the variable per participant per day. It was decided to use this method rather than the overall mean because it was expected that this would result in a closer approximation to the actual value of those entries.
 
 second method is mean per person. 
 
+
 \subsection{TASK 1C: FEATURE ENGINEERING}
+
+\subsubsection{Frequency Count}
+
+\subsubsection{Normalization}
+
 \subsubsection{Weekdays}
 One feature that was added for the purpose of temporal mood prediction is the day of the week, which was constructed from the original data. This might be a valuable feature as it is reasonable that individual's mood may depend on the day of the week. For example, people may be in better mood on Saturday than on Monday.
 \subsubsection{Participant's Average Mood}
@@ -85,12 +180,8 @@ PARTICPANT'S AVERAGE MOOD CAN BE IMPLEMENTED MAYBE?
 
 
 
-
-
-
-
-
-
+\include{task4.tex}
+\include{task5.tex}
 
 
 

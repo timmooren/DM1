@@ -1,0 +1,32 @@
+\section{TASK 5: EVALUATION}
+
+\subsection{TASK 5A: CHARACTERISTICS OF EVALUATION METRICS}
+% Consider the following two error measures: mean squared error (MSE) and mean absolute
+% error (MAE).
+% • Write down their corresponding formulae.
+% • Discuss: Why would someone use one and not the other?
+% • Describe an example situation (dataset, problem, algorithm perhaps) where using MSE
+% or MAE would give identical results. Justify your answer (some maths may come handy, but clear explanation is also sufficient).
+Mean Squared Error (MSE) and Mean Absolute Error (MAE) are two common error measures used to evaluate the performance of a model in regression tasks. The corresponding formulae for these error measures are as follows:
+
+$$
+M S E=\frac{1}{N} \sum_{i=1}^N\left(y_i-\hat{y}_i\right)^2
+$$
+$$
+M A E=\frac{1}{N} \sum_{i=1}^N\left|y_i-\hat{y}_i\right|
+$$
+where $y_i$ denotes the true value of the target variable, $\hat{y}_i$ represents the predicted value of the target variable, and $N$ is the number of samples in the dataset.
+
+A researcher might choose to use one error measure over the other based on the characteristics of the problem at hand and the desired properties of the error metric. The key differences between the two error measures are outlined below:
+
+\textbf{Sensitivity to Outliers:} The MSE metric is more sensitive to outliers than MAE. This is because the squared term in the MSE formula magnifies the errors for large deviations. As a result, MSE tends to penalize large errors more heavily. If the researcher wants to emphasize the importance of fitting large errors correctly, they might choose MSE over MAE. Conversely, if the goal is to minimize the influence of outliers, MAE may be preferred.
+
+\textbf{Differentiability}: MSE is a differentiable function, while MAE is not differentiable at all points due to the absolute value operation. In the context of optimization algorithms, this difference is important. Algorithms that require gradient information, such as gradient descent, benefit from using MSE since its gradient can be easily computed. On the other hand, MAE might be used with optimization algorithms that do not require gradient information.
+
+An example situation where using MSE or MAE would yield identical results is when the errors are either all positive or all negative, with equal magnitude. For instance, consider a dataset with true target values $y = [1, 2]$ and predicted values $\hat{y} = [2, 3]$. In this case, the errors are $[-1, -1]$, and the absolute values of the errors are $[1, 1]$. Computing MSE and MAE gives:
+$$
+M S E=\frac{1}{2}\left((-1)^2+(-1)^2\right)=\frac{1}{2}(1+1)=1
+$$
+$$
+M A E=\frac{1}{2}(|-1|+|-1|)=\frac{1}{2}(1+1)=1
+$$
