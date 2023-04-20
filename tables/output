@@ -1,0 +1,31 @@
+\begin{table}
+\centering
+\caption{Descriptive table of raw Mood data}
+\begin{tabular}{cccccccc}
+\toprule
+           Variables &  Data types &  number values &  number unique values &      Mean (std) &              Value range &               Date range &  Missing values (before time aggregation) &  Missing values (after time aggregation) \\
+\midrule
+                  id &          id &         358926 &                    27 &              Na &                       Na & (2014-02-17, 2014-04-09) &                                         0 &                                        0 \\
+                time &    datetime &         358926 &                336907 &              Na & (2014-02-17, 2014-06-09) & (2014-02-17, 2014-06-09) &                                         0 &                                        0 \\
+            activity &     numeric &          22965 &                  1868 &     0.12 (0.19) &                   (0, 1) & (2014-03-17, 2014-06-07) &                                    335961 &                                        0 \\
+      appCat.builtin &     numeric &          91288 &                 23237 &  18.54 (415.99) &          (-82799, 33960) & (2014-03-13, 2014-06-08) &                                    267638 &                                        0 \\
+appCat.communication &     numeric &          74276 &                 39890 &  43.34 (128.91) &                (0, 9831) & (2014-03-13, 2014-06-08) &                                    284650 &                                        0 \\
+appCat.entertainment &     numeric &          27125 &                 12575 &  37.58 (262.96) &               (0, 32149) & (2014-03-13, 2014-06-02) &                                    331801 &                                        0 \\
+      appCat.finance &     numeric &            939 &                   729 &   21.76 (39.22) &                 (0, 356) & (2014-03-15, 2014-05-09) &                                    357987 &                                        0 \\
+         appCat.game &     numeric &            813 &                   792 & 128.39 (327.15) &                (1, 5492) & (2014-03-20, 2014-05-13) &                                    358113 &                                        0 \\
+       appCat.office &     numeric &           5642 &                  3178 &   22.58 (449.6) &               (0, 32709) & (2014-03-15, 2014-05-28) &                                    353284 &                                        0 \\
+        appCat.other &     numeric &           7650 &                  5014 &  25.81 (112.78) &                (0, 3892) & (2014-03-13, 2014-06-05) &                                    351276 &                                        0 \\
+       appCat.social &     numeric &          19145 &                 14660 &   72.4 (261.55) &               (0, 30001) & (2014-03-13, 2014-06-08) &                                    339781 &                                        0 \\
+       appCat.travel &     numeric &           2846 &                  2606 &  45.73 (246.11) &               (0, 10453) & (2014-03-14, 2014-06-05) &                                    356080 &                                        0 \\
+      appCat.unknown &     numeric &            939 &                   846 &   45.55 (119.4) &                (0, 2240) & (2014-03-14, 2014-05-30) &                                    357987 &                                        0 \\
+    appCat.utilities &     numeric &           2487 &                  1732 &   18.54 (60.96) &                (0, 1803) & (2014-03-13, 2014-06-03) &                                    356439 &                                        0 \\
+      appCat.weather &     numeric &            255 &                   250 &   20.15 (24.94) &                 (1, 345) & (2014-03-22, 2014-05-28) &                                    358671 &                                        0 \\
+                call & categorical &           5239 &                     1 &       1.0 (0.0) &                   (1, 1) & (2014-02-17, 2014-02-17) &                                    353687 &                                        0 \\
+  circumplex.arousal &     numeric &           5582 &                     8 &     -0.1 (1.05) &                  (-2, 2) & (2014-02-26, 2014-04-13) &                                    353344 &                                        0 \\
+  circumplex.valence &     numeric &           5474 &                     8 &     0.69 (0.67) &                  (-2, 2) & (2014-02-26, 2014-04-21) &                                    353452 &                                       15 \\
+                mood &     ordinal &           5628 &                    14 &     6.99 (1.03) &                  (1, 10) & (2014-02-26, 2014-04-27) &                                    353298 &                                       16 \\
+              screen &     numeric &          96578 &                 64646 &  75.34 (253.82) &                (0, 9867) & (2014-03-13, 2014-06-08) &                                    262348 &                                       28 \\
+                 sms & categorical &           1798 &                     1 &       1.0 (0.0) &                   (1, 1) & (2014-02-17, 2014-02-17) &                                    357128 &                                       15 \\
+\bottomrule
+\end{tabular}
+\end{table}
