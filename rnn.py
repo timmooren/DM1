@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
+from sklearn.model_selection import GridSearchCV
 import wandb
 from wandb.keras import WandbCallback
 import numpy as np
@@ -26,7 +27,7 @@ wandb.init(project="DM1", config=config)
 def initialize_model(X_train, y_train):
     model = Sequential()
     model.add(LSTM(config["hidden_units"], input_shape=(
-        config["timesteps"], X_train.shape[2])), recurrent_dropout=config["recurrent_dropout"])
+        config["timesteps"], X_train.shape[2]), recurrent_dropout=config["recurrent_dropout"]))
     model.add(Dropout(config["dropout_rate"]))
     # output layer
     model.add(Dense(3, activation="softmax"))
@@ -69,6 +70,8 @@ def main():
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(
         X_sequences, y_sequences, test_size=0.2, random_state=42)
+    
+    # model = optimization(X_train, y_train)
     model = initialize_model(X_train, y_train)
 
     history = model.fit(

@@ -3,9 +3,24 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 import functions as fn
 from sklearn.model_selection import train_test_split
 from sklearn.tree import plot_tree
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
-from imblearn.over_sampling import SMOTE
+# from imblearn.over_sampling import SMOTE
+
+def optimization(X_train, y_train):
+    param_grid = {
+    'n_estimators': [50, 100, 150],
+    'max_features': ['sqrt', 'log2', None],
+    'max_depth': [5, 10, 20, None],
+    'max_leaf_nodes': [3, 6, 9, 15],
+    'criterion': ['gini', 'entropy']
+    }
+   
+    grid_search = GridSearchCV(RandomForestClassifier(), param_grid=param_grid, scoring='accuracy')
+    grid_search.fit(X_train, y_train)
+    print(grid_search.best_params_)
+    return grid_search.best_estimator_
 
 
 def main():
@@ -19,7 +34,7 @@ def main():
     # train test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    random_forest = RandomForestClassifier(n_estimators=100, random_state=42)
+    random_forest = optimization(X_train, y_train)
     random_forest.fit(X_train, y_train)
 
     y_pred = random_forest.predict(X_test)

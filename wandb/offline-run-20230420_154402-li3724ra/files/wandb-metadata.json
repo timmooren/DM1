@@ -1,0 +1,42 @@
+{
+    "os": "Windows-10-10.0.19044-SP0",
+    "python": "3.9.13",
+    "heartbeatAt": "2023-04-20T13:44:02.709147",
+    "startedAt": "2023-04-20T13:44:02.564520",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "c:\\Users\\nikki\\Documents\\Master\\DMT\\DM1\\rnn.py",
+    "codePath": "rnn.py",
+    "git": {
+        "remote": "git@github.com:timmooren/DM1.git",
+        "commit": "95a186678a6c2669090dddfe9fdb0a45e4d66333"
+    },
+    "email": "nikki-moolhuijsen@hotmail.com",
+    "root": "C:/Users/nikki/Documents/Master/DMT/DM1",
+    "host": "DESKTOP-F6NG1BS",
+    "username": "nikki",
+    "executable": "C:\\Users\\nikki\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\\python.exe",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 1600.0,
+        "min": 0.0,
+        "max": 1800.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1600.0,
+            "min": 0.0,
+            "max": 1800.0
+        }
+    ],
+    "disk": {
+        "total": 217.28612899780273,
+        "used": 131.53153228759766
+    },
+    "memory": {
+        "total": 7.893760681152344
+    }
+}
