@@ -10,7 +10,7 @@ def load_data():
 
 
 def remove_incorrect_values(data):
-    # makes copy of df to not modify argument
+    # makes copy of df to not modify argumentb
     data_copy = data.copy()
     # remove rows where appCat.builtin and appCat.entertainment	are negative
     return data_copy[~(((data_copy['variable'] == 'appCat.builtin') | (data_copy['variable'] == 'appCat.entertainment')) & (data_copy['value'] < 0))]
@@ -175,6 +175,7 @@ def split_data(data=clean_data()):
 
 
 def data_prep_normal_model(clean_data, period_length=2):
+    #https://towardsdatascience.com/improve-your-data-science-workflow-with-rolling-functions-in-pandas-69c4b44e3f7e
     # makes copy of df to not modify argument
     clean_data_copy = clean_data.copy()
     # aggregates data over period using mean)
