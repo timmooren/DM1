@@ -19,7 +19,7 @@ def main(data):
     # Initialize the best model and its performance
     best_model = None
     best_performance = float('inf')
-    metric = 'mse'
+    metric = 'mae'
 
     # Iterate over all hyperparameter combinations
     for params in ParameterGrid(param_grid):
@@ -44,16 +44,18 @@ def main(data):
         cv_results = cross_validation(model, horizon='1 day')
 
         # Compute the mean squared error (MSE) performance metric
-        performance_metric = performance_metrics(cv_results)[metric].mean()
+        performance_metric = performance_metrics(cv_results)['mae'].mean()
+        performance_metric2 = performance_metrics(cv_results)['mse'].mean()
 
         # Check if this model is better than the previous best model
         if performance_metric < best_performance:
             best_model = model
             best_performance = performance_metric
 
+
     # Print the best hyperparameters and performance
     print("Best hyperparameters:", best_model.params)
-    print("Best performance:", best_performance)
+    print("Best performance mae:", best_performance)
 
     # Make future predictions
     future = best_model.make_future_dataframe(

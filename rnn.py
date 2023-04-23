@@ -12,7 +12,7 @@ import functions as fn
 
 config = {
     "batch_size": 64,
-    "epochs": 50,
+    "epochs": 45,
     "timesteps": 7,
     "hidden_units": 50,
     "dropout_rate": 0.2,
@@ -70,7 +70,7 @@ def main():
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(
         X_sequences, y_sequences, test_size=0.2, random_state=42)
-    
+
     # model = optimization(X_train, y_train)
     model = initialize_model(X_train, y_train)
 
